@@ -7,9 +7,6 @@ node {
    }
 
    stage('Publish') {
-      when {
-        branch 'master'
-      }
       steps {
         withDockerRegistry([ credentialsId: "a6944791-4326-4bd5-bd89-6a8836381124", url: "" ]) {
           sh 'docker push akeeb/mscs:${env.BUILD_NUMBER}'
