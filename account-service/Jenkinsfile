@@ -1,32 +1,19 @@
-
 node {
 
-        stage('Checkout') {
-            git url: 'https://github.com/piomin/sample-spring-microservices.git', credentialsId: 'github-piomin', branch: 'master'
+   stage('Clone Repository') {
+        // Get some code from a GitHub repository
+        git 'https://github.com/Aaqib041/Metro-Smart-Card-System.git'
+
+   }
+
+   stage('Publish') {
+      when {
+        branch 'master'
+      }
+      steps {
+        withDockerRegistry([ credentialsId: "a6944791-4326-4bd5-bd89-6a8836381124", url: "" ]) {
+          sh 'docker push akeeb/mscs:${env.BUILD_NUMBER}'
         }
-
-        stage('Build') {
-            sh ' mvn --version'
-	    sh 'clean install'
-
-            def pom = readMavenPom file:'pom.xml'
-            print pom.version
-            env.version = pom.version
-        }
-
-        stage('Image') {
-            dir ('account-service') {
-                def app = docker.build "localhost:5000/account-service:${env.version}"
-                app.push()
-            }
-        }
-
-        stage ('Run') {
-            docker.image("localhost:5000/account-service:${env.version}").run('-p 2222:2222 -h account --name account --link discovery')
-        }
-
-        stage ('Final') {
-            build job: 'customer-service-pipeline', wait: false
-        }      
-
+      }
     }
+}
